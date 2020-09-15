@@ -15,8 +15,13 @@
 
 <br>
 
-## 1. Check User Account Balance by Typing In User Name and Then Click 'Get Account Balance'
+## 1. Check User Account Balance by Typing In User Name and Then Click 'Get Balance'
 <img src = "images/image4.png" width = "70%">
+
+<br>
+
+## 1. Type User Name and Amount to Pay/ Add to Account
+<img src = "images/image5.png" width = "70%">
 
 <br>
 
