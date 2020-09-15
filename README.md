@@ -5,9 +5,20 @@
 
 <br>
 
-## 1. Click Take Images Which Starts the Camera
+## 1. Click Take Images Which Starts the Camera and Captures Multiple Face Images
 <img src = "images/image2.png" width = "70%">
 
 <br>
+
+## 1. Train the Images
+<img src = "images/image3.png" width = "70%">
+
+<br>
+
+## 1. Check User Account Balance by Typing In User Name
+<img src = "images/image4.png" width = "70%">
+
+<br>
+
 
 
