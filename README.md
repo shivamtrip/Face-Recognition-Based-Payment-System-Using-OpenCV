@@ -25,5 +25,17 @@
 
 <br>
 
+## 1. Camera Turns On and Checks If You Are The Same Person As Mentioned 
+<img src = "images/image6.png" width = "70%">
+
+<br>
+
+## 1. Check Account Balance to Confirm the Transaction Has Taken Place 
+<img src = "images/image7.png" width = "70%">
+
+<br>
+
+
+
 
 
