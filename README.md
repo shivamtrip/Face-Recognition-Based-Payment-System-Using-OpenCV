@@ -5,7 +5,7 @@
 
 <br>
 
-## 1. Click Take Images Which Starts the Camera and Captures Multiple Face Images
+## 1. Click 'Take Images' Which Starts the Camera and Captures Multiple Face Images
 <img src = "images/image2.png" width = "70%">
 
 <br>
@@ -15,7 +15,7 @@
 
 <br>
 
-## 1. Check User Account Balance by Typing In User Name
+## 1. Check User Account Balance by Typing In User Name and Then Click 'Get Account Balance'
 <img src = "images/image4.png" width = "70%">
 
 <br>
