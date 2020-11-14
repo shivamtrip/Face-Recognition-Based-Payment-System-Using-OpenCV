@@ -2,6 +2,7 @@
 
 ## 1. Enter User Name and Initial Account Balance
 This step creates the user's account on the database with Name and Initial Account Balance as user data.
+
 <img src = "images/image1.png" width = "70%">
 
 <br>
