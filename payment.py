@@ -6,6 +6,23 @@ import os
 import csv
 import tkinter as tk
 import shutil
+import pyrealsense2 as rs
+import time
+
+
+
+# Configure depth and color streams
+pipeline = rs.pipeline()
+config = rs.config()
+#depth stream not needed
+#config.enable_stream(rs.stream.depth, 640, 480, rs.format.z16, 30)
+config.enable_stream(rs.stream.color, 640, 480, rs.format.bgr8, 30)
+
+# Start streaming
+pipeline.start(config)
+
+
+
 
 window = tk.Tk()
 #helv36 = tk.Font(family='Helvetica', size=36, weight='bold')
@@ -75,17 +92,35 @@ def add_money():
 def capture():
     money=(txt.get())
     name=(txt2.get())
+
+    print("Name: ", name)
+
     Id = len(os.listdir('dataSet'))//60
+
+    isExist = os.path.exists("dataSet")
+    print("Exists", isExist)
+    # if not os.path.exists("dataSet"):
+    #     os.makedirs("dataSet")
+
     if money.isdigit() and name.isalpha():
         detector=cv2.CascadeClassifier('haarcascade_frontalface_default.xml')
 
-        cam = cv2.VideoCapture(0)
+        # cam = cv2.VideoCapture(0)
 
         Id= str(len(os.listdir('dataSet'))//60)
         sampleNum=0
 
         while(True):
-            ret, img = cam.read()
+            # Wait for a coherent pair of frames: depth and color
+            frames = pipeline.wait_for_frames()
+            color_frame = frames.get_color_frame()
+            
+            if not color_frame:
+                continue
+
+            img = color_frame.get_data()
+            img = np.asanyarray(img)
+
             gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
             faces = detector.detectMultiScale(gray, 1.3, 5)
             for (x,y,w,h) in faces:
@@ -93,19 +128,19 @@ def capture():
                 #incrementing sample number
                 sampleNum=sampleNum+1
                 #saving the captured face in the dataset folder TrainingImage
-                cv2.imwrite("dataSet\ "+name +"."+Id +'.'+ str(sampleNum) + ".jpg", gray[y:y+h,x:x+w])
+                cv2.imwrite("dataSet/ "+name +"."+Id +'.'+ str(sampleNum) + ".jpg", gray[y:y+h,x:x+w])
                 #display the frame
                 cv2.imshow('frame',img)
             #wait for 100 miliseconds
             if cv2.waitKey(100) & 0xFF == ord('q'):
                 break
             # break if the sample number is morethan 100
-            elif sampleNum>60:
+            elif sampleNum>30:
                 break
-        cam.release()
+        # cam.release()
         cv2.destroyAllWindows()
         row = [Id, name, money]
-        with open('Details\StudentDetails.csv','a+') as csvFile:
+        with open('Details/StudentDetails.csv','a+') as csvFile:
             writer = csv.writer(csvFile)
             writer.writerow(row)
         csvFile.close()
@@ -168,14 +203,14 @@ def predict(pay):
         cascadePath = "haarcascade_frontalface_default.xml"
         faceCascade = cv2.CascadeClassifier(cascadePath)
 
-        df=pd.read_csv("Details\StudentDetails.csv")
+        df=pd.read_csv("Details/StudentDetails.csv")
         col_names =  ['Id','Name', 'Money']
         df.set_index('Id')
 
         # df.loc[0, 'Money'] = df.loc[0, 'Money'] - 700
         # df.to_csv("StudentDetails\StudentDetails.csv", index = False)
 
-        cam = cv2.VideoCapture(0)
+        # cam = cv2.VideoCapture(0)
         person = None
         count = 0
         match = False
@@ -184,7 +219,18 @@ def predict(pay):
         font = cv2.FONT_HERSHEY_SIMPLEX
 
         while True:
-            ret, im =cam.read()
+            # ret, im =cam.read()
+            # Wait for a coherent pair of frames: depth and color
+            frames = pipeline.wait_for_frames()
+            color_frame = frames.get_color_frame()
+            
+            if not color_frame:
+                continue
+
+            im = color_frame.get_data()
+            im = np.asanyarray(im)
+
+
             gray=cv2.cvtColor(im,cv2.COLOR_BGR2GRAY)
             faces=faceCascade.detectMultiScale(gray, 1.2,5)
             for(x,y,w,h) in faces:
@@ -210,31 +256,32 @@ def predict(pay):
                     if count == 30:
                         match = True
                         print("YES")
-                        break
+                        # break
             else:
                 count = 0
 
         if match == True:
             if pay == True:
                 df.loc[Id, 'Money'] =  df.loc[Id, 'Money'] - int(transfer)
-                df.to_csv("Details\StudentDetails.csv", index = False)
+                df.to_csv("Details/StudentDetails.csv", index = False)
                 res = "Amount Payed!"#+",".join(str(f) for f in Id)
                 message.configure(text= res)
             else:
                 df.loc[Id, 'Money'] =  df.loc[Id, 'Money'] + int(transfer)
-                df.to_csv("Details\StudentDetails.csv", index = False)
+                df.to_csv("Details/StudentDetails.csv", index = False)
                 res = "Amount Added!"#+",".join(str(f) for f in Id)
                 message.configure(text= res)
 
-        cam.release()
+        # cam.release()
         cv2.destroyAllWindows()
 
 def get_balance():
     message2.configure(text = "")
     name=(txt2.get())
+    print("Name: ", name)
     # f = []
     if name.isalpha():
-        df=pd.read_csv("Details\StudentDetails.csv")
+        df=pd.read_csv("Details/StudentDetails.csv")
         try:
             row = df.loc[df['Name'] == name]['Money'].reset_index(drop = True)
             # z = list(df['Name'].values)
@@ -250,11 +297,11 @@ def get_balance():
         message.configure(text = "Please enter User Name")
 
 def clear_data():
-    df=pd.read_csv("Details\StudentDetails.csv")
+    df=pd.read_csv("Details/StudentDetails.csv")
     s = df
     for i in range(len(df)):
         s = s.drop([i], axis = 0)
-    s.to_csv("Details\StudentDetails.csv", index = False)
+    s.to_csv("Details/StudentDetails.csv", index = False)
     shutil.rmtree('dataSet')
     os.makedirs('dataSet')
     message.configure(text = "Data Cleared")
@@ -274,7 +321,7 @@ quitWindow = tk.Button(window, text="Get Balance", command=get_balance  ,fg="red
 quitWindow.place(x=1100, y=500)
 copyWrite = tk.Text(window, background=window.cget("background"), borderwidth=0,font=('times', 30, 'italic bold underline'))
 copyWrite.tag_configure("superscript", offset=10)
-copyWrite.insert("insert", "Developed by Shivam","", "TEAM", "superscript")
+# copyWrite.insert("insert", "Developed by Shivam")
 copyWrite.configure(state="disabled",fg="red"  )
 copyWrite.pack(side="left")
 copyWrite.place(x=800, y=750)
